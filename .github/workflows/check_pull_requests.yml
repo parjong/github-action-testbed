@@ -1,0 +1,28 @@
+# References
+# - https://docs.github.com/en/actions/creating-actions/creating-a-javascript-action
+on:
+- pull_request
+
+jobs:
+  post_comment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ./.github/actions/post-comment
+        with:
+          who-to-greet: 'Committer'
+          # Is it possible to omit this line?
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '👋 Thanks for reporting!'
+            })

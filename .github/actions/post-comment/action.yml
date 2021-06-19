@@ -1,0 +1,13 @@
+name: 'Hello World'
+
+inputs:
+  who-to-greet:  # id of input
+    description: 'Who to greet'
+    required: true
+  token:
+    description: 'Token to use'
+    required: true
+
+runs:
+  using: 'node12'
+  main: 'index.js'
