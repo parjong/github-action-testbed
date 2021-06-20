@@ -4,15 +4,31 @@ name: 'Check Pull Request'
 on: pull_request
 
 jobs:
-  # FIXME This workflow
-  fixme:
+  tutorial:
     runs-on: ubuntu-latest
-    # Remove the default runs-on and uncomment the below line to use self-hosted runner
-    # runs-on: self-hosted
-
     steps:
-      # Runs a single command using the runners shell
-      - run: echo Hello, world!
+      - uses: actions/github-script@v4
+        with:
+          script: |
+            const id = '378e7f8c01b32f424459543ab310261e'
+            const remote_filename = 'sample.html'
+            const local_filename = 'A.html'
 
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      #- uses: actions/checkout@v2
+            var resp = await github.gists.get({ gist_id: id })
+
+            if ( resp.status != 200 )
+            {
+              console.log(resp)
+              throw 'Fail'
+            }
+
+            if ( !(remote_filename in resp.data.files) )
+            {
+              throw 'File not found'
+            }
+            console.log(resp.data.files[remote_filename])
+
+            const fs = require('fs');
+            fs.writeFileSync(local_filename, resp.data.files[remote_filename].content)
+          github-token: ${{ secrets.GIST_TOKEN }}
+      - run: cat A.html
