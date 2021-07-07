@@ -1,0 +1,38 @@
+name: "Check Pull Request"
+
+on:
+  # https://docs.github.com/en/actions/reference/events-that-trigger-workflows#pull_request
+  #
+  # Runs your workflow anytime the pull_request event occurs.
+  #
+  # https://docs.github.com/en/rest/reference/pulls
+  pull_request:
+    # Guess when the pull request is for 'main' branch
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # NOTE: Action SHOULD be checked out at GITHUB_WORKSPACE before its use
+      - uses: actions/checkout@v2
+        with:
+          # https://github.com/actions/checkout/tree/v2
+          # Relative path under $GITHUB_WORKSPACE to place the repository
+          path: 'code'
+
+      # https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action#example-using-a-private-action
+      # ./ prefix means that actions are under GITHUB_WORKSPACE
+      - uses: ./code/.github/actions/build
+        with:
+          output-rpath: "C.tgz"
+        id: C # To refer this step from the next steps
+
+      - uses: ./code/.github/actions/build
+        with:
+          output-rpath: "D.tgz"
+
+      - run: ls $GITHUB_WORKSPACE
+
+      - run: echo "The time was ${{ steps.C.outputs.time }}"
